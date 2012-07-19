@@ -3,3 +3,8 @@ cache-downloads
 inspector
 api
 source/inspector.html
+/chromedriver
+/selenium-standalone.jar
+/webdriver.js
+/chromedriver.log
+/server.sh
