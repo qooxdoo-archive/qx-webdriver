@@ -25,7 +25,8 @@
     },
 
     getInterfacesByElement : function() {
-      var widget = qx.ui.core.Widget.getWidgetByElement(arguments[0]);
+      var $qx = qx;
+      var widget = $qx.ui.core.Widget.getWidgetByElement(arguments[0]);
       var clazz = widget.constructor;
       var iFaces = [];
       qx.Class.getInterfaces(clazz).forEach(function(item, i) {
@@ -35,9 +36,10 @@
     },
 
     getInterfaces : function() {
+      var $qx = qx;
       var clazz = arguments[0].constructor;
       var iFaces = [];
-      qx.Class.getInterfaces(clazz).forEach(function(item, i) {
+      $qx.Class.getInterfaces(clazz).forEach(function(item, i) {
         iFaces.push(/\[Interface (.*?)\]/.exec(item.toString())[1]);
       });
       return iFaces;
@@ -45,7 +47,8 @@
 
     getClassHierarchy : function()
     {
-      var widget = qx.ui.core.Widget.getWidgetByElement(arguments[0]);
+      var $qx = qx;
+      var widget = $qx.ui.core.Widget.getWidgetByElement(arguments[0]);
       var hierarchy = [];
       var clazz = widget.constructor;
       while (clazz && clazz.classname) {
@@ -60,7 +63,8 @@
     "qx.ui.core.ISingleSelection" : {
       getSelectables : function()
       {
-        var widget = qx.core.ObjectRegistry.fromHashCode(this.qxHash);
+        var $qx = qx;
+        var widget = $qx.core.ObjectRegistry.fromHashCode(this.qxHash);
         var selectables = widget.getSelectables();
 
         return selectables;
