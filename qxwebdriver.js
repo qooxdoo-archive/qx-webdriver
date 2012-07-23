@@ -128,6 +128,24 @@
           return element;
         });
       });
+    },
+
+    waitForQxApplication : function(timeout)
+    {
+      var driver = this;
+      return driver.wait(function() {
+        var ready = false;
+        var isQxReady = function() {
+          try {
+            var $qx = qx;
+            return !!$qx.core.Init.getApplication();
+          } catch(ex) {
+            return false;
+          }
+        };
+        ready = driver.executeScript(isQxReady);
+        return ready;
+      }, timeout || 5000);
     }
   };
 

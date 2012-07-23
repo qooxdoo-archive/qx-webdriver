@@ -15,18 +15,7 @@ var driver = new qxwebdriver.Builder().
 
 driver.get('http://localhost/~dwagner/workspace/qx-webdriver/aut/source/index.html')
 .then(function() {
-  driver.wait(function() {
-    var ready = false;
-    var isQxReady = function() {
-      try {
-        return !!qx.core.Init.getApplication();
-      } catch(ex) {
-        return false;
-      }
-    };
-    ready = driver.executeScript(isQxReady);
-    return ready;
-  }, 5000)
+  driver.waitForQxApplication(3000)
   .then(function() {
     driver.findWidget(webdriver.By.xpath('//div[@qxclass="qx.ui.form.SelectBox"]'))
     .then(function(selectBox) {
