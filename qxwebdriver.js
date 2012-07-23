@@ -95,36 +95,79 @@
     }
   };
 
+  qxwebdriver.WebDriver = {
+    findWidget : function(locator)
+    {
+      var driver = this;
+      var app = webdriver.promise.Application.getInstance();
+      return app.schedule("findQxWidget", function() {
+        var element = driver.findElement(locator);
+        return driver.addQxBehavior(element);
+      });
+    },
 
-  webdriver.WebDriver.prototype.findQxWidget = function(locator)
-  {
-    var driver = this;
-    var app = webdriver.promise.Application.getInstance();
-    return app.schedule("findQxWidget", function() {
-      var element = driver.findElement(locator);
-      return driver.addQxBehavior(element);
-    });
+    addQxBehavior : function(element)
+    {
+      var driver = this;
+      return driver.executeScript(qxwebdriver.util.getInterfacesByElement, element)
+      .then(function(iFaces) {
+        driver.executeScript(qxwebdriver.util.getClassHierarchy, element)
+        .then(function(hierarchy) {
+            iFaces = hierarchy.concat(iFaces);
+            qxwebdriver.util.addInterfaceMethods(iFaces, element);
+        });
+
+        // Store the widget's qx object registry id
+        return driver.executeScript("return qx.ui.core.Widget.getWidgetByElement(arguments[0]).toHashCode()", element)
+        .then(function(hash) {
+          element.qxHash = hash;
+          return element;
+        });
+      });
+    }
   };
 
-  webdriver.WebDriver.prototype.addQxBehavior = function(element)
-  {
-    var driver = this;
-    return driver.executeScript(qxwebdriver.util.getInterfacesByElement, element)
-    .then(function(iFaces) {
-      driver.executeScript(qxwebdriver.util.getClassHierarchy, element)
-      .then(function(hierarchy) {
-          iFaces = hierarchy.concat(iFaces);
-          qxwebdriver.util.addInterfaceMethods(iFaces, element);
-      });
-
-      // Store the widget's qx object registry id
-      return driver.executeScript("return qx.ui.core.Widget.getWidgetByElement(arguments[0]).toHashCode()", element)
-      .then(function(hash) {
-        element.qxHash = hash;
-        return element;
-      });
-    });
+  /**
+   * Creates new WebDriver clients with qooxdoo-specific enhancements.
+   * See the webdriver.Builder documentation for details.
+   */
+  qxwebdriver.Builder = function() {
+    this.__builder = new webdriver.Builder();
   };
 
-  return qxwebdriver;
+  qxwebdriver.Builder.prototype.usingServer = function(url) {
+    this.__builder.serverUrl_ = url;
+    return this;
+  };
+
+  qxwebdriver.Builder.prototype.usingSession = function(id) {
+    this.__builder.sessionId_ = id;
+    return this;
+  };
+
+  qxwebdriver.Builder.prototype.withCapabilities = function(capabilities) {
+    this.__builder.capabilities_ = capabilities;
+    return this;
+  };
+
+  /**
+   * Builds a new webdriver.WebDriver instance using this builder's
+   * current configuration and adds qooxdoo-specific methods.
+   * @return {webdriver.WebDriver} A new WebDriver client.
+   */
+  qxwebdriver.Builder.prototype.build = function() {
+    var driver = this.__builder.build();
+    for (var methodName in qxwebdriver.WebDriver) {
+      driver[methodName] = qxwebdriver.WebDriver[methodName].bind(driver);
+    }
+    return driver;
+  };
+
+  // expose global object for in-browser testing
+  if (typeof require == "undefined") {
+    window.qxwebdriver = qxwebdriver;
+  }
+  else {
+    exports.Builder = qxwebdriver.Builder;
+  }
 })();

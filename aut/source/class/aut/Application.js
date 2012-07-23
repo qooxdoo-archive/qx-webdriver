@@ -31,13 +31,13 @@ qx.Class.define("aut.Application",
         return null;
       }
 
-      var builder = new webdriver.Builder();
+      var builder = new qxwebdriver.Builder();
       return builder.usingServer('http://localhost:4444/wd/hub').build();
     },
 
     runTest : function(driver)
     {
-      driver.findQxWidget(webdriver.By.xpath('//div[@qxclass="qx.ui.form.SelectBox"]'))
+      driver.findWidget(webdriver.By.xpath('//div[@qxclass="qx.ui.form.SelectBox"]'))
       .then(function(selectBox) {
         selectBox.selectItem(webdriver.By.xpath('//div[text() = "Item 2"]'));
       });
